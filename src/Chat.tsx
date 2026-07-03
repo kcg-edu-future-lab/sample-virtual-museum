@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent, type MouseEvent, type SubmitEvent } from 'react';
+import { useRef, type SubmitEvent } from 'react';
 import { ChangeState, ClassName, Distributed, GetState, Madoi, SetState } from 'madoi-client';
 import { useMadoiModel, useSelfPeer } from 'madoi-client-react';
 import type { PeerProfile } from './App';

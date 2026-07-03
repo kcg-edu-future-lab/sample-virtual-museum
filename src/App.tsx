@@ -1,4 +1,4 @@
-import { createContext, Suspense, useContext, useRef, useState, type Dispatch, type FormEvent, type PropsWithChildren, type RefObject, type SetStateAction } from 'react'
+import { createContext, Suspense, useContext, useRef, useState, type Dispatch, type PropsWithChildren, type SetStateAction, type SubmitEvent } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Gltf, KeyboardControls } from "@react-three/drei";
 import { v4 as uuidv4 } from 'uuid';
@@ -37,7 +37,7 @@ export const MadoiContext = createContext({
 function Settings({ madoi }: { madoi: Madoi<PeerProfile> }) {
   const selfPeer = useSelfPeer(madoi);
 
-  const updateName = (event: FormEvent<HTMLFormElement>) => {
+  const updateName = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const name = String(form.get('name') ?? '').trim();
