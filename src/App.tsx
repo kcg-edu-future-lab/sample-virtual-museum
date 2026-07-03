@@ -63,15 +63,12 @@ export default function App() {
             fov: 45, // 視野角
             position: [-4, 1, 4], // 位置
           }}
-          onCreated={({ camera }) => {
-            camera.lookAt(0, 1, 0);
-        }}>
+          onCreated={({ camera }) => camera.lookAt(0, 1, 0)}>
           <Player
             onPositionChanged={onSelfPositionChanged}
-            onOrientationChanged={onSelfOrientationChanged} />
-          {otherPeers.map(p =>{
-            return <AvatarObject key={p.id} peer={p}/>;
-          })}
+            onOrientationChanged={onSelfOrientationChanged}
+          />
+          {otherPeers.map(p => <AvatarObject key={p.id} peer={p}/>)}
           <Suspense fallback={null}>
             <Gltf src="./Scaniverse 2026-05-11 131013.glb" />
           </Suspense>
@@ -100,7 +97,7 @@ export default function App() {
           <Chat madoi={madoi} />
         </div>
         {activeTab === 'settings' && <Settings madoi={madoi} />}
-    </aside>
+      </aside>
     </MouseAndKeyboardPropagationBlocker>
   </div>;
 }
