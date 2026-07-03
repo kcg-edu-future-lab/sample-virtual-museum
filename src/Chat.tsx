@@ -36,10 +36,6 @@ type ChatProps = {
   madoi: Madoi<PeerProfile>;
 };
 
-const stopEventPropagation = (event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
-  event.stopPropagation();
-};
-
 export function Chat({ madoi }: ChatProps) {
   const chatModel = useMadoiModel(madoi, () => new ChatModel());
   const speakerNameRef = useRef<HTMLInputElement>(null!);
@@ -65,17 +61,7 @@ export function Chat({ madoi }: ChatProps) {
     chatMessageRef.current.value = "";
   };
 
-  return <aside
-    className="chatPanel"
-    onClick={stopEventPropagation}
-    onContextMenu={stopEventPropagation}
-    onDoubleClick={stopEventPropagation}
-    onKeyDown={stopEventPropagation}
-    onKeyUp={stopEventPropagation}
-    onMouseDown={stopEventPropagation}
-    onMouseMove={stopEventPropagation}
-    onMouseUp={stopEventPropagation}
-  >
+  return <aside className="chatPanel">
     <div className="chatHeader">
       <span>Chat</span>
       <form className="speakerNameForm" onSubmit={updateSpeakerName}>

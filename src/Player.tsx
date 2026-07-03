@@ -1,14 +1,17 @@
-import { useRef } from "react";
+import { useRef, type RefObject } from "react";
 import { Vector3 } from "three";
 import { PointerLockControls, useKeyboardControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import type { vec3, vec4 } from "./App";
 
 interface PlayerProps{
+  pointerTargetRef?: RefObject<HTMLElement>;
   onPositionChanged?: (position: vec3)=>void;
   onOrientationChanged?: (orientation: vec4)=>void;
 }
-export function Player({onPositionChanged, onOrientationChanged}: PlayerProps) {
+export function Player({
+  pointerTargetRef, onPositionChanged, onOrientationChanged}: PlayerProps) {
+
   const [, getKeys] = useKeyboardControls();
   const orientationChanged = useRef(false);
   const onPointerChanged = ()=>{
@@ -41,5 +44,6 @@ export function Player({onPositionChanged, onOrientationChanged}: PlayerProps) {
     }
   });
 
-  return <PointerLockControls onChange={onPointerChanged}/>;
+  return <PointerLockControls onChange={onPointerChanged}
+    domElement={pointerTargetRef?.current || undefined}/>;
 }

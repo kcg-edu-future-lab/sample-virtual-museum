@@ -14,3 +14,82 @@
   flex: 1 1 auto;
   min-width: 0;
 }
+
+.sidePanel {
+  flex: 0 0 320px;
+  height: 640px;
+  border-left: 1px solid #d9dde5;
+  background: #fff;
+}
+
+.tabList {
+  display: flex;
+  border-bottom: 1px solid #d9dde5;
+}
+
+.tabList button {
+  flex: 1;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  padding: 12px;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.tabList button[aria-selected="true"] {
+  border-bottom-color: #2563eb;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.tabList .settingsTab {
+  flex: 0 0 48px;
+  margin-left: auto;
+}
+
+.settingsTab svg {
+  display: block;
+  margin: auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+}
+
+.sidePanel .chatPanel {
+  width: auto;
+  height: 593px;
+  border-left: 0;
+}
+
+.settingsPanel {
+  padding: 16px;
+}
+
+.settingsPanel h2 {
+  margin: 0 0 20px;
+  font-size: 18px;
+}
+
+.settingsPanel form {
+  display: grid;
+  gap: 8px;
+}
+
+.settingsPanel input,
+.settingsPanel button {
+  border: 1px solid #cfd6e3;
+  border-radius: 6px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
+.settingsPanel button {
+  border: 0;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
