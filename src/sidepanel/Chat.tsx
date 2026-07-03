@@ -1,4 +1,4 @@
-import { useRef, type SubmitEvent } from 'react';
+import { useEffect, useRef, type SubmitEvent } from 'react';
 import { ChangeState, ClassName, Distributed, EnterRoomAllowed, GetState, Madoi, SetState } from 'madoi-client';
 import { useMadoiModel, useSelfPeer } from 'madoi-client-react';
 import type { PeerProfile } from '../App';
@@ -51,7 +51,13 @@ export function Chat({ madoi }: ChatProps) {
   const speakerNameDialogRef = useRef<HTMLDialogElement>(null!);
   const speakerNameRef = useRef<HTMLInputElement>(null!);
   const chatMessageRef = useRef<HTMLInputElement>(null!);
+  const chatMessagesRef = useRef<HTMLDivElement>(null!);
   const selfPeer = useSelfPeer(madoi);
+  const messages = chatModel.getMessages();
+
+  useEffect(() => {
+    chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+  }, [messages.length]);
 
   const updateSpeakerName = (event: SubmitEvent<HTMLFormElement>)=>{
     event.preventDefault();
@@ -107,8 +113,8 @@ export function Chat({ madoi }: ChatProps) {
         </form>
       </dialog>
     </div>
-    <div className="chatMessages">
-      {chatModel.getMessages().map((message, index) => (
+    <div className="chatMessages" ref={chatMessagesRef}>
+      {messages.map((message, index) => (
         <div className="chatMessage" key={index}>
           <div className="chatMeta">
             <span>{senderName(message)}</span>
