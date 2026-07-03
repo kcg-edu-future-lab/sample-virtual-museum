@@ -80,7 +80,7 @@ export default function App() {
       <aside className="sidePanel">
         <div className="tabList" role="tablist" aria-label="サイドパネル">
           <TabHeader
-            id='chat-tab' tabName='chat'
+            id="chat-tab" tabName="chat"
             activeTab={activeTab} setActiveTab={setActiveTab}
           >Chat</TabHeader>
           <TabHeader

@@ -1,13 +1,15 @@
 import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 
-interface TabHeaderProps extends PropsWithChildren{
+type StateOfDispatch<D> =
+  D extends Dispatch<SetStateAction<infer S>> ? S : never;
+interface TabHeaderProps<D extends Dispatch<SetStateAction<any>>> extends PropsWithChildren{
   id: string;
-  tabName: string;
+  tabName: StateOfDispatch<D>;
   activeTab: string;
-  setActiveTab: Dispatch<SetStateAction<any>>;
+  setActiveTab: D;
 }
-export function TabHeader(
-  {id, tabName, activeTab, setActiveTab, children}: TabHeaderProps){
+export function TabHeader<D extends Dispatch<SetStateAction<any>>>(
+  {id, tabName, activeTab, setActiveTab, children}: TabHeaderProps<D>){
   return <button
       id={id}
       className={`${tabName}Tab`}
