@@ -19,6 +19,7 @@
     "react-dom": "^19.2.7",
     "tcet": "^1.2.2",
     "three": "^0.184.0",
+    "tlssa": "^0.1.3",
     "uuid": "^14.0.0"
   },
   "devDependencies": {
