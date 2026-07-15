@@ -1,6 +1,7 @@
-import { createContext, Suspense, useContext, useState } from 'react'
+import { createContext, Suspense, useContext, useEffect, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Gltf, KeyboardControls } from "@react-three/drei";
+import { Box3, Vector3 } from 'three';
 import { v4 as uuidv4 } from 'uuid';
 import { TypedStorageAdapter } from 'tlssa';
 import { Madoi, type Profile } from 'madoi-client';
@@ -13,9 +14,9 @@ import { Chat } from './sidepanel/Chat';
 import { MouseAndKeyboardPropagationBlocker } from './common/MouseAndKeyboardPropagationBlocker';
 import { TabHeader } from './common/TabHeader';
 import { Settings } from './sidepanel/Settings';
+import type { vec3, vec4 } from './common/util';
+import type { CollisionObject } from './common/CollisionObject';
 
-export type vec3 = [number, number, number];
-export type vec4 = [number, number, number, number];
 export interface PeerProfile extends Profile{
   name?: string;
   position: vec3;
@@ -36,10 +37,68 @@ export const MadoiContext = createContext({
   )
 });
 
+function CollisonBoxes({
+  collisionObjects, selectedName, setCollisionObjects
+}: {
+  collisionObjects: CollisionObject[];
+  selectedName?: string;
+  setCollisionObjects: React.Dispatch<React.SetStateAction<CollisionObject[]>>;
+}) {
+  const box = useMemo(() => new Box3(
+    new Vector3(-0.25, -0.25, -0.25),
+    new Vector3(0.25, 0.25, 0.25),
+  ), []);
+
+  useEffect(() => {
+    if (!selectedName) return;
+
+    const moveSelected = (event: KeyboardEvent) => {
+      const moves: Record<string, vec3> = {
+        ArrowLeft: [-0.1, 0, 0],
+        ArrowRight: [0.1, 0, 0],
+        ArrowUp: [0, 0, -0.1],
+        ArrowDown: [0, 0, 0.1],
+        PageUp: [0, 0.1, 0],
+        PageDown: [0, -0.1, 0],
+      };
+      const move = moves[event.key];
+      if (!move) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setCollisionObjects(current => current.map(object => object.name === selectedName ? {
+        ...object,
+        position: object.position.map((value, index) => value + move[index]) as vec3,
+      } : object));
+    };
+
+    window.addEventListener('keydown', moveSelected, true);
+    return () => window.removeEventListener('keydown', moveSelected, true);
+  }, [selectedName]);
+
+  return <>
+    {collisionObjects.map(object =>
+      <group key={object.name} position={object.position} scale={object.scale}>
+        <box3Helper args={[box, selectedName === object.name ? 0xffff00 : 0xff0000]} />
+      </group>
+    )}
+  </>;
+}
+
 export default function App() {
   const madoi = useContext(MadoiContext).madoi;
   const otherPeers = useOtherPeers(madoi);
   const [activeTab, setActiveTab] = useState<'chat' | 'settings'>('chat');
+  const [collisionObjects, setCollisionObjects] = useState<CollisionObject[]>([]);
+  const [selectedCollisionObjectName, setSelectedCollisionObjectName] = useState<string>();
+  const changeCollisionObjects: React.Dispatch<React.SetStateAction<CollisionObject[]>> = update => {
+    setCollisionObjects(current => {
+      const objects = typeof update === 'function' ? update(current) : update;
+      if (selectedCollisionObjectName && !objects.some(object => object.name === selectedCollisionObjectName)) {
+      setSelectedCollisionObjectName(undefined);
+      }
+      return objects;
+    });
+  };
 
   const onSelfPositionChanged = (position: vec3)=>{
     madoi.updateSelfPeerProfile("position", position);
@@ -68,10 +127,17 @@ export default function App() {
             onPositionChanged={onSelfPositionChanged}
             onOrientationChanged={onSelfOrientationChanged}
           />
-          {otherPeers.map(p => <AvatarObject key={p.id} peer={p}/>)}
+          {otherPeers.map(p =>
+             <AvatarObject key={p.id} peer={p}/>
+          )}
           <Suspense fallback={null}>
-            <Gltf src="./Scaniverse 2026-05-11 131013.glb" />
+            <Gltf src='./Scaniverse 2026-05-11 131013.glb' />
           </Suspense>
+          <CollisonBoxes
+            collisionObjects={collisionObjects}
+            selectedName={selectedCollisionObjectName}
+            setCollisionObjects={setCollisionObjects}
+          />
           <ambientLight intensity={1} />
         </Canvas>
       </KeyboardControls>
@@ -96,7 +162,13 @@ export default function App() {
         <div id="chat-panel" role="tabpanel" aria-labelledby="chat-tab" hidden={activeTab !== 'chat'}>
           <Chat madoi={madoi} />
         </div>
-        {activeTab === 'settings' && <Settings madoi={madoi} />}
+        {activeTab === 'settings' && <Settings
+          madoi={madoi}
+          collisionObjects={collisionObjects}
+          onCollisionObjectsChange={changeCollisionObjects}
+          selectedCollisionObjectName={selectedCollisionObjectName}
+          onCollisionObjectSelect={setSelectedCollisionObjectName}
+        />}
       </aside>
     </MouseAndKeyboardPropagationBlocker>
   </div>;

@@ -1,0 +1,221 @@
+
+.settingsFileActions {
+  display: flex;
+  gap: 4px;
+}
+
+.settingsFileActions button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  place-items: center;
+}
+
+.settingsFileActions svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.collisionObjects {
+  margin-top: 28px;
+}
+
+.collisionObjects h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.collisionObjectsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.collisionObjectInput {
+  display: flex;
+  gap: 8px;
+}
+
+.collisionObjectInput input {
+  min-width: 0;
+  flex: 1;
+}
+
+.collisionObjects ul {
+  height: 180px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.collisionObjectList {
+  overflow-y: auto;
+}
+
+.collisionObjects li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.collisionObjects .collisionObjectSelect {
+  min-width: 0;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 400;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.collisionObjects .collisionObjectSelect[aria-pressed="true"] {
+  color: #b45309;
+  font-weight: 700;
+}
+
+.collisionObjects .collisionObjectRemove {
+  flex: 0 0 auto;
+  background: #dc2626;
+}
+
+.emptyCollisionObjects {
+  margin: 12px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.collisionObjectInfo {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #d9dde5;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.collisionObjectControls {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #d9dde5;
+  border-radius: 6px;
+}
+
+.collisionObjectControls h4 {
+  margin: 0 0 8px;
+}
+
+.collisionObjectControls fieldset {
+  margin: 8px 0 0;
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.collisionObjectControls legend {
+  padding: 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.controlButtons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.scaleButtons {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.moveButtons {
+  grid-template-columns: repeat(4, 28px);
+  justify-content: center;
+}
+
+.moveButtons button {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 2px;
+}
+
+.moveUp {
+  grid-column: 2;
+}
+
+.moveLeft {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.moveRight {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.moveDown {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.moveFront {
+  grid-column: 5;
+  grid-row: 1;
+}
+
+.moveBack {
+  grid-column: 5;
+  grid-row: 3;
+}
+
+.collisionObjectControls .scaleValue {
+  margin: 8px 0 0;
+  color: #475569;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.collisionObjectInfo h4,
+.collisionObjectInfo p,
+.collisionObjectInfo dl {
+  margin: 0;
+}
+
+.collisionObjectInfo h4 {
+  margin-bottom: 8px;
+}
+
+.collisionObjectInfo p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.collisionObjectInfo dl {
+  display: flex;
+  gap: 20px;
+}
+
+.collisionObjectInfo dl div {
+  display: flex;
+  gap: 6px;
+}
+
+.collisionObjectInfo dt {
+  font-weight: 700;
+}
+
+.collisionObjectInfo dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}

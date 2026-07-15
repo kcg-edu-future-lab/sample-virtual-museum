@@ -2,7 +2,7 @@ import { useRef, type RefObject } from "react";
 import { Vector3 } from "three";
 import { PointerLockControls, useKeyboardControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import type { vec3, vec4 } from "./App";
+import type { vec3, vec4 } from "./common/util";
 
 interface PlayerProps{
   pointerTargetRef?: RefObject<HTMLElement>;
