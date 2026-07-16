@@ -22,16 +22,16 @@
   stroke-linejoin: round;
 }
 
-.collisionObjects {
+.infoObjects {
   margin-top: 28px;
 }
 
-.collisionObjects h3 {
+.infoObjects h3 {
   margin: 0;
   font-size: 16px;
 }
 
-.collisionObjectsHeader {
+.infoObjectsHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -39,17 +39,17 @@
   margin-bottom: 12px;
 }
 
-.collisionObjectInput {
+.infoObjectInput {
   display: flex;
   gap: 8px;
 }
 
-.collisionObjectInput input {
+.infoObjectInput input {
   min-width: 0;
   flex: 1;
 }
 
-.collisionObjects ul {
+.infoObjects ul {
   height: 180px;
   margin: 12px 0 0;
   padding: 0;
@@ -58,11 +58,11 @@
   border-radius: 6px;
 }
 
-.collisionObjectList {
+.infoObjectList {
   overflow-y: auto;
 }
 
-.collisionObjects li {
+.infoObjects li {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -71,7 +71,7 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.collisionObjects .collisionObjectSelect {
+.infoObjects .infoObjectSelect {
   min-width: 0;
   padding: 4px;
   border: 0;
@@ -82,23 +82,23 @@
   overflow-wrap: anywhere;
 }
 
-.collisionObjects .collisionObjectSelect[aria-pressed="true"] {
+.infoObjects .infoObjectSelect[aria-pressed="true"] {
   color: #b45309;
   font-weight: 700;
 }
 
-.collisionObjects .collisionObjectRemove {
+.infoObjects .infoObjectRemove {
   flex: 0 0 auto;
   background: #dc2626;
 }
 
-.emptyCollisionObjects {
+.emptyInfoObjects {
   margin: 12px 0 0;
   color: #6b7280;
   font-size: 14px;
 }
 
-.collisionObjectInfo {
+.infoObjectInfo {
   margin-top: 16px;
   padding: 12px;
   border: 1px solid #d9dde5;
@@ -106,24 +106,24 @@
   background: #f8fafc;
 }
 
-.collisionObjectControls {
+.infoObjectControls {
   margin-top: 16px;
   padding: 12px;
   border: 1px solid #d9dde5;
   border-radius: 6px;
 }
 
-.collisionObjectControls h4 {
+.infoObjectControls h4 {
   margin: 0 0 8px;
 }
 
-.collisionObjectControls fieldset {
+.infoObjectControls fieldset {
   margin: 8px 0 0;
   padding: 8px;
   border: 1px solid #e5e7eb;
 }
 
-.collisionObjectControls legend {
+.infoObjectControls legend {
   padding: 0 4px;
   font-size: 13px;
   font-weight: 700;
@@ -179,43 +179,43 @@
   grid-row: 3;
 }
 
-.collisionObjectControls .scaleValue {
+.infoObjectControls .scaleValue {
   margin: 8px 0 0;
   color: #475569;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
-.collisionObjectInfo h4,
-.collisionObjectInfo p,
-.collisionObjectInfo dl {
+.infoObjectInfo h4,
+.infoObjectInfo p,
+.infoObjectInfo dl {
   margin: 0;
 }
 
-.collisionObjectInfo h4 {
+.infoObjectInfo h4 {
   margin-bottom: 8px;
 }
 
-.collisionObjectInfo p {
+.infoObjectInfo p {
   color: #6b7280;
   font-size: 14px;
 }
 
-.collisionObjectInfo dl {
+.infoObjectInfo dl {
   display: flex;
   gap: 20px;
 }
 
-.collisionObjectInfo dl div {
+.infoObjectInfo dl div {
   display: flex;
   gap: 6px;
 }
 
-.collisionObjectInfo dt {
+.infoObjectInfo dt {
   font-weight: 700;
 }
 
-.collisionObjectInfo dd {
+.infoObjectInfo dd {
   margin: 0;
   font-variant-numeric: tabular-nums;
 }

@@ -15,7 +15,7 @@ import { MouseAndKeyboardPropagationBlocker } from './common/MouseAndKeyboardPro
 import { TabHeader } from './common/TabHeader';
 import { Settings } from './sidepanel/Settings';
 import type { vec3, vec4 } from './common/util';
-import type { CollisionObject } from './common/CollisionObject';
+import type { InfoObject } from './common/InfoObject';
 
 export interface PeerProfile extends Profile{
   name?: string;
@@ -38,11 +38,11 @@ export const MadoiContext = createContext({
 });
 
 function CollisonBoxes({
-  collisionObjects, selectedName, setCollisionObjects
+  infoObjects, selectedName, setInfoObjects
 }: {
-  collisionObjects: CollisionObject[];
+  infoObjects: InfoObject[];
   selectedName?: string;
-  setCollisionObjects: React.Dispatch<React.SetStateAction<CollisionObject[]>>;
+  setInfoObjects: React.Dispatch<React.SetStateAction<InfoObject[]>>;
 }) {
   const box = useMemo(() => new Box3(
     new Vector3(-0.25, -0.25, -0.25),
@@ -65,7 +65,7 @@ function CollisonBoxes({
       if (!move) return;
       event.preventDefault();
       event.stopPropagation();
-      setCollisionObjects(current => current.map(object => object.name === selectedName ? {
+      setInfoObjects(current => current.map(object => object.name === selectedName ? {
         ...object,
         position: object.position.map((value, index) => value + move[index]) as vec3,
       } : object));
@@ -76,7 +76,7 @@ function CollisonBoxes({
   }, [selectedName]);
 
   return <>
-    {collisionObjects.map(object =>
+    {infoObjects.map(object =>
       <group key={object.name} position={object.position} scale={object.scale}>
         <box3Helper args={[box, selectedName === object.name ? 0xffff00 : 0xff0000]} />
       </group>
@@ -88,13 +88,13 @@ export default function App() {
   const madoi = useContext(MadoiContext).madoi;
   const otherPeers = useOtherPeers(madoi);
   const [activeTab, setActiveTab] = useState<'chat' | 'settings'>('chat');
-  const [collisionObjects, setCollisionObjects] = useState<CollisionObject[]>([]);
-  const [selectedCollisionObjectName, setSelectedCollisionObjectName] = useState<string>();
-  const changeCollisionObjects: React.Dispatch<React.SetStateAction<CollisionObject[]>> = update => {
-    setCollisionObjects(current => {
+  const [infoObjects, setInfoObjects] = useState<InfoObject[]>([]);
+  const [selectedInfoObjectName, setSelectedInfoObjectName] = useState<string>();
+  const changeInfoObjects: React.Dispatch<React.SetStateAction<InfoObject[]>> = update => {
+    setInfoObjects(current => {
       const objects = typeof update === 'function' ? update(current) : update;
-      if (selectedCollisionObjectName && !objects.some(object => object.name === selectedCollisionObjectName)) {
-      setSelectedCollisionObjectName(undefined);
+      if (selectedInfoObjectName && !objects.some(object => object.name === selectedInfoObjectName)) {
+      setSelectedInfoObjectName(undefined);
       }
       return objects;
     });
@@ -134,9 +134,9 @@ export default function App() {
             <Gltf src='./Scaniverse 2026-05-11 131013.glb' />
           </Suspense>
           <CollisonBoxes
-            collisionObjects={collisionObjects}
-            selectedName={selectedCollisionObjectName}
-            setCollisionObjects={setCollisionObjects}
+            infoObjects={infoObjects}
+            selectedName={selectedInfoObjectName}
+            setInfoObjects={setInfoObjects}
           />
           <ambientLight intensity={1} />
         </Canvas>
@@ -164,10 +164,10 @@ export default function App() {
         </div>
         {activeTab === 'settings' && <Settings
           madoi={madoi}
-          collisionObjects={collisionObjects}
-          onCollisionObjectsChange={changeCollisionObjects}
-          selectedCollisionObjectName={selectedCollisionObjectName}
-          onCollisionObjectSelect={setSelectedCollisionObjectName}
+          infoObjects={infoObjects}
+          onInfoObjectsChange={changeInfoObjects}
+          selectedInfoObjectName={selectedInfoObjectName}
+          onInfoObjectSelect={setSelectedInfoObjectName}
         />}
       </aside>
     </MouseAndKeyboardPropagationBlocker>

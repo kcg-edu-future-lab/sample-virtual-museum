@@ -3,27 +3,27 @@ import type { Madoi } from "madoi-client";
 import type { PeerProfile } from "../App";
 import './Settings.css';
 import type { vec3 } from "../common/util";
-import type { CollisionObject } from "../common/CollisionObject";
+import type { InfoObject } from "../common/InfoObject";
 
 const isVec3 = (value: unknown): value is vec3 =>
   Array.isArray(value) && value.length === 3 && value.every(item => typeof item === 'number');
 
 interface SettingsProps {
   madoi: Madoi<PeerProfile>;
-  collisionObjects: CollisionObject[];
-  onCollisionObjectsChange: React.Dispatch<React.SetStateAction<CollisionObject[]>>;
-  selectedCollisionObjectName?: string;
-  onCollisionObjectSelect: (name: string | undefined) => void;
+  infoObjects: InfoObject[];
+  onInfoObjectsChange: React.Dispatch<React.SetStateAction<InfoObject[]>>;
+  selectedInfoObjectName?: string;
+  onInfoObjectSelect: (name: string | undefined) => void;
 }
 
 export function Settings({
-  collisionObjects, onCollisionObjectsChange,
-  selectedCollisionObjectName, onCollisionObjectSelect
+  infoObjects, onInfoObjectsChange,
+  selectedInfoObjectName, onInfoObjectSelect
 }: SettingsProps) {
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
   const downloadSettings = () => {
-    const data = JSON.stringify({collisionObjects}, null, 2);
+    const data = JSON.stringify({infoObjects}, null, 2);
     const url = URL.createObjectURL(new Blob([data], {type: 'application/json'}));
     const link = document.createElement('a');
     link.href = url;
@@ -38,32 +38,32 @@ export function Settings({
     if (!file) return;
 
     try {
-      const settings = JSON.parse(await file.text()) as {collisionObjects?: unknown};
-      if (!Array.isArray(settings.collisionObjects)
-        || !settings.collisionObjects.every(object => object && typeof object === 'object'
-          && typeof (object as CollisionObject).name === 'string'
-          && isVec3((object as CollisionObject).position)
-          && isVec3((object as CollisionObject).scale))) {
+      const settings = JSON.parse(await file.text()) as {infoObjects?: unknown};
+      if (!Array.isArray(settings.infoObjects)
+        || !settings.infoObjects.every(object => object && typeof object === 'object'
+          && typeof (object as InfoObject).name === 'string'
+          && isVec3((object as InfoObject).position)
+          && isVec3((object as InfoObject).scale))) {
         throw new Error('Invalid settings file');
       }
-      onCollisionObjectsChange(settings.collisionObjects as CollisionObject[]);
-      onCollisionObjectSelect(undefined);
+      onInfoObjectsChange(settings.infoObjects as InfoObject[]);
+      onInfoObjectSelect(undefined);
     } catch {
       window.alert('設定ファイルを読み込めませんでした。');
     }
   };
 
-  const addCollisionObject = (event: SubmitEvent<HTMLFormElement>) => {
+  const addInfoObject = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
     const name = String(new FormData(form).get('objectName') ?? '').trim();
-    if (!name || collisionObjects.some(object => object.name === name)) return;
-    onCollisionObjectsChange([...collisionObjects, {name, position: [-2, 1, 2], scale: [1, 1, 1]}]);
+    if (!name || infoObjects.some(object => object.name === name)) return;
+    onInfoObjectsChange([...infoObjects, {name, position: [-2, 1, 2], scale: [1, 1, 1]}]);
     form.reset();
   };
 
-  const removeCollisionObject = (name: string) => {
-    onCollisionObjectsChange(collisionObjects.filter(object => object.name !== name));
+  const removeInfoObject = (name: string) => {
+    onInfoObjectsChange(infoObjects.filter(object => object.name !== name));
   };
 
   const updateSelectedVector = (
@@ -72,9 +72,9 @@ export function Settings({
     amount: number,
     minimum?: number,
   ) => {
-    if (!selectedCollisionObjectName) return;
-    onCollisionObjectsChange(current => current.map(object => {
-      if (object.name !== selectedCollisionObjectName) return object;
+    if (!selectedInfoObjectName) return;
+    onInfoObjectsChange(current => current.map(object => {
+      if (object.name !== selectedInfoObjectName) return object;
       const next = [...object[property]] as vec3;
       next[axis] = Math.max(minimum ?? -Infinity, Number((next[axis] + amount).toFixed(1)));
       return {...object, [property]: next};
@@ -83,8 +83,8 @@ export function Settings({
 
   return <div className="settingsPanel" role="tabpanel" id="settings-panel" aria-labelledby="settings-tab">
     <h2>設定</h2>
-    <section className="collisionObjects">
-      <div className="collisionObjectsHeader">
+    <section className="infoObjects">
+      <div className="infoObjectsHeader">
         <h3>当たり判定オブジェクト</h3>
         <div className="settingsFileActions">
           <button type="button" aria-label="設定をダウンロード" title="設定をダウンロード" onClick={downloadSettings}>
@@ -106,34 +106,34 @@ export function Settings({
           />
         </div>
       </div>
-      <form onSubmit={addCollisionObject}>
+      <form onSubmit={addInfoObject}>
         <label htmlFor="collision-object-name">オブジェクト名</label>
-        <div className="collisionObjectInput">
+        <div className="infoObjectInput">
           <input id="collision-object-name" name="objectName" required />
           <button type="submit">追加</button>
         </div>
       </form>
-      {collisionObjects.length === 0 ? (
-        <p className="emptyCollisionObjects">登録されていません</p>
+      {infoObjects.length === 0 ? (
+        <p className="emptyInfoObjects">登録されていません</p>
       ) : (
-        <ul className="collisionObjectList">
-          {collisionObjects.map(({name}) => <li key={name}>
+        <ul className="infoObjectList">
+          {infoObjects.map(({name}) => <li key={name}>
             <button
               type="button"
-              className="collisionObjectSelect"
-              aria-pressed={selectedCollisionObjectName === name}
-              onClick={() => onCollisionObjectSelect(
-                selectedCollisionObjectName === name ? undefined : name
+              className="infoObjectSelect"
+              aria-pressed={selectedInfoObjectName === name}
+              onClick={() => onInfoObjectSelect(
+                selectedInfoObjectName === name ? undefined : name
               )}
             >{name}</button>
-            <button className="collisionObjectRemove" type="button" onClick={() => removeCollisionObject(name)} aria-label={`${name}を削除`}>
+            <button className="infoObjectRemove" type="button" onClick={() => removeInfoObject(name)} aria-label={`${name}を削除`}>
               削除
             </button>
           </li>)}
         </ul>
       )}
-      <div className="collisionObjectControls">
-        <fieldset disabled={!selectedCollisionObjectName}>
+      <div className="infoObjectControls">
+        <fieldset disabled={!selectedInfoObjectName}>
           <legend>移動</legend>
           <div className="controlButtons moveButtons">
             <button className="moveUp" type="button" aria-label="上" title="上" onClick={() => updateSelectedVector('position', 1, 0.1)}>↑</button>
@@ -144,7 +144,7 @@ export function Settings({
             <button className="moveBack" type="button" onClick={() => updateSelectedVector('position', 2, 0.1)}>後</button>
           </div>
         </fieldset>
-        <fieldset disabled={!selectedCollisionObjectName}>
+        <fieldset disabled={!selectedInfoObjectName}>
           <legend>拡大・縮小</legend>
           <div className="controlButtons scaleButtons">
             {(['横', '縦', '前後'] as const).flatMap((label, axis) => [
@@ -153,14 +153,14 @@ export function Settings({
             ])}
           </div>
         </fieldset>
-        {selectedCollisionObjectName && <p className="scaleValue">
-          倍率: {collisionObjects.find(object => object.name === selectedCollisionObjectName)?.scale.map(value => value.toFixed(1)).join(' × ')}
+        {selectedInfoObjectName && <p className="scaleValue">
+          倍率: {infoObjects.find(object => object.name === selectedInfoObjectName)?.scale.map(value => value.toFixed(1)).join(' × ')}
         </p>}
       </div>
-      <div className="collisionObjectInfo" aria-live="polite">
+      <div className="infoObjectInfo" aria-live="polite">
         <h4>座標</h4>
-        {selectedCollisionObjectName ? (() => {
-          const [x, y, z] = collisionObjects.find(object => object.name === selectedCollisionObjectName)?.position ?? [-2, 1, 2];
+        {selectedInfoObjectName ? (() => {
+          const [x, y, z] = infoObjects.find(object => object.name === selectedInfoObjectName)?.position ?? [-2, 1, 2];
           return <dl>
             <div><dt>X</dt><dd>{x.toFixed(1)}</dd></div>
             <div><dt>Y</dt><dd>{y.toFixed(1)}</dd></div>
