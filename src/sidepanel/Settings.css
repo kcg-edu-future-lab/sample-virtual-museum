@@ -1,4 +1,34 @@
 
+.settingsPanel {
+  padding: 16px;
+}
+
+.settingsPanel h2 {
+  margin: 0 0 20px;
+  font-size: 18px;
+}
+
+.settingsPanel form {
+  display: grid;
+  gap: 8px;
+}
+
+.settingsPanel input,
+.settingsPanel button {
+  border: 1px solid #cfd6e3;
+  border-radius: 6px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
+.settingsPanel button {
+  border: 0;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .settingsFileActions {
   display: flex;
   gap: 4px;
@@ -23,7 +53,7 @@
 }
 
 .infoObjects {
-  margin-top: 28px;
+  margin-top: 4px;
 }
 
 .infoObjects h3 {

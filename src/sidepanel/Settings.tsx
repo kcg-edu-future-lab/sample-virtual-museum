@@ -92,7 +92,7 @@ export function Settings({
   return <div className="settingsPanel" role="tabpanel" id="settings-panel" aria-labelledby="settings-tab">
     <section className="infoObjects">
       <div className="infoObjectsHeader">
-        <h3>当たり判定オブジェクト</h3>
+        <h3>説明オブジェクト</h3>
         <div className="settingsFileActions">
           <button type="button" aria-label="設定をダウンロード" title="設定をダウンロード" onClick={downloadSettings}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -114,9 +114,8 @@ export function Settings({
         </div>
       </div>
       <form onSubmit={addInfoObject}>
-        <label htmlFor="collision-object-name">オブジェクト名</label>
         <div className="infoObjectInput">
-          <input id="collision-object-name" name="objectName" required />
+          <input id="collision-object-name" name="objectName" placeholder="オブジェクト名" required />
           <button type="submit">追加</button>
         </div>
       </form>

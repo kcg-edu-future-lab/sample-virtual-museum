@@ -1,7 +1,7 @@
-import { createContext, Suspense, useContext, useEffect, useMemo, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { createContext, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { Gltf, KeyboardControls } from "@react-three/drei";
-import { Box3, Vector3 } from 'three';
+import { Box3, Ray, Vector3 } from 'three';
 import { v4 as uuidv4 } from 'uuid';
 import { TypedStorageAdapter } from 'tlssa';
 import { Madoi, type Profile } from 'madoi-client';
@@ -37,7 +37,7 @@ export const MadoiContext = createContext({
   )
 });
 
-function CollisonBoxes({
+function InfoObjects({
   infoObjects, selectedName, setInfoObjects
 }: {
   infoObjects: InfoObject[];
@@ -88,12 +88,62 @@ function Crosshair() {
   return <div className="crosshair" aria-hidden="true" />;
 }
 
+function InfoObjectDetector({ infoObjects, onUrlDetected }: {
+  infoObjects: InfoObject[];
+  onUrlDetected: (url: string | undefined) => void;
+}) {
+  const lastUrl = useRef<string | undefined>(undefined);
+  const direction = useMemo(() => new Vector3(), []);
+  const targetBox = useMemo(() => new Box3(), []);
+  const intersection = useMemo(() => new Vector3(), []);
+  const center = useMemo(() => new Vector3(), []);
+  const size = useMemo(() => new Vector3(), []);
+  const ray = useMemo(() => new Ray(), []);
+
+  useFrame(({ camera }) => {
+    camera.getWorldDirection(direction);
+    let url: string | undefined;
+    let nearestDistance = 1;
+
+    for (const object of infoObjects) {
+      targetBox.setFromCenterAndSize(
+        center.set(...object.position),
+        size.set(...object.scale).multiplyScalar(0.5),
+      );
+      if (targetBox.containsPoint(camera.position)) {
+        url = object.url;
+        nearestDistance = 0;
+      } else {
+        ray.set(camera.position, direction);
+        if (ray.intersectBox(targetBox, intersection)) {
+          const distance = camera.position.distanceTo(intersection);
+          if (distance < nearestDistance) {
+            nearestDistance = distance;
+            url = object.url;
+          }
+        }
+      }
+    }
+
+    if (url !== lastUrl.current) onUrlDetected(url);
+    lastUrl.current = url;
+  });
+
+  return null;
+}
+
 export default function App() {
   const madoi = useContext(MadoiContext).madoi;
   const otherPeers = useOtherPeers(madoi);
-  const [activeTab, setActiveTab] = useState<'chat' | 'settings'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'info' | 'settings'>('chat');
+  const [detectedInfoObjectUrl, setDetectedInfoObjectUrl] = useState<string>();
   const [infoObjects, setInfoObjects] = useState<InfoObject[]>([]);
   const [selectedInfoObjectName, setSelectedInfoObjectName] = useState<string>();
+
+  const onInfoObjectUrlDetected = useCallback((url: string | undefined) => {
+    setDetectedInfoObjectUrl(url);
+    if (url) setActiveTab('info');
+  }, []);
 
   useEffect(() => {
     fetch('./infoobjects.json')
@@ -148,11 +198,12 @@ export default function App() {
           <Suspense fallback={null}>
             <Gltf src='./Scaniverse 2026-05-11 131013.glb' />
           </Suspense>
-          <CollisonBoxes
+          <InfoObjects
             infoObjects={infoObjects}
             selectedName={selectedInfoObjectName}
             setInfoObjects={setInfoObjects}
           />
+          <InfoObjectDetector infoObjects={infoObjects} onUrlDetected={onInfoObjectUrlDetected} />
           <ambientLight intensity={1} />
         </Canvas>
       </KeyboardControls>
@@ -166,6 +217,10 @@ export default function App() {
             activeTab={activeTab} setActiveTab={setActiveTab}
           >Chat</TabHeader>
           <TabHeader
+            id="info-tab" tabName="info"
+            activeTab={activeTab} setActiveTab={setActiveTab}
+          >Info</TabHeader>
+          <TabHeader
             id="settings-tab" tabName="settings"
             activeTab={activeTab} setActiveTab={setActiveTab}
           >
@@ -177,6 +232,13 @@ export default function App() {
         </div>
         <div id="chat-panel" role="tabpanel" aria-labelledby="chat-tab" hidden={activeTab !== 'chat'}>
           <Chat madoi={madoi} />
+        </div>
+        <div id="info-panel" role="tabpanel" aria-labelledby="info-tab" hidden={activeTab !== 'info'}>
+          {detectedInfoObjectUrl ? <iframe
+            className="infoObjectFrame"
+            src={detectedInfoObjectUrl}
+            title="Info object"
+          /> : "計算機の説明がここに表示されます。"}
         </div>
         {activeTab === 'settings' && <Settings
           madoi={madoi}
