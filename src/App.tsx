@@ -84,12 +84,27 @@ function CollisonBoxes({
   </>;
 }
 
+function Crosshair() {
+  return <div className="crosshair" aria-hidden="true" />;
+}
+
 export default function App() {
   const madoi = useContext(MadoiContext).madoi;
   const otherPeers = useOtherPeers(madoi);
   const [activeTab, setActiveTab] = useState<'chat' | 'settings'>('chat');
   const [infoObjects, setInfoObjects] = useState<InfoObject[]>([]);
   const [selectedInfoObjectName, setSelectedInfoObjectName] = useState<string>();
+
+  useEffect(() => {
+    fetch('./infoobjects.json')
+      .then(response => {
+        if (!response.ok) throw new Error(`Failed to load infoobjects.json: ${response.status}`);
+        return response.json() as Promise<{ infoObjects: InfoObject[] }>;
+      })
+      .then(data => setInfoObjects(data.infoObjects))
+      .catch(error => console.error(error));
+  }, []);
+
   const changeInfoObjects: React.Dispatch<React.SetStateAction<InfoObject[]>> = update => {
     setInfoObjects(current => {
       const objects = typeof update === 'function' ? update(current) : update;
@@ -141,6 +156,7 @@ export default function App() {
           <ambientLight intensity={1} />
         </Canvas>
       </KeyboardControls>
+      <Crosshair />
     </div>
     <MouseAndKeyboardPropagationBlocker>
       <aside className="sidePanel">

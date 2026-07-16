@@ -27,7 +27,7 @@ export function Settings({
     const url = URL.createObjectURL(new Blob([data], {type: 'application/json'}));
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'museum-settings.json';
+    link.download = 'infoobjects.json';
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -42,6 +42,7 @@ export function Settings({
       if (!Array.isArray(settings.infoObjects)
         || !settings.infoObjects.every(object => object && typeof object === 'object'
           && typeof (object as InfoObject).name === 'string'
+          && typeof (object as InfoObject).url === 'string'
           && isVec3((object as InfoObject).position)
           && isVec3((object as InfoObject).scale))) {
         throw new Error('Invalid settings file');
@@ -58,12 +59,19 @@ export function Settings({
     const form = event.currentTarget;
     const name = String(new FormData(form).get('objectName') ?? '').trim();
     if (!name || infoObjects.some(object => object.name === name)) return;
-    onInfoObjectsChange([...infoObjects, {name, position: [-2, 1, 2], scale: [1, 1, 1]}]);
+    onInfoObjectsChange([...infoObjects, {name, url: '', position: [-2, 1, 2], scale: [1, 1, 1]}]);
     form.reset();
   };
 
   const removeInfoObject = (name: string) => {
     onInfoObjectsChange(infoObjects.filter(object => object.name !== name));
+  };
+
+  const updateSelectedUrl = (url: string) => {
+    if (!selectedInfoObjectName) return;
+    onInfoObjectsChange(current => current.map(object =>
+      object.name === selectedInfoObjectName ? {...object, url} : object
+    ));
   };
 
   const updateSelectedVector = (
@@ -82,7 +90,6 @@ export function Settings({
   };
 
   return <div className="settingsPanel" role="tabpanel" id="settings-panel" aria-labelledby="settings-tab">
-    <h2>設定</h2>
     <section className="infoObjects">
       <div className="infoObjectsHeader">
         <h3>当たり判定オブジェクト</h3>
@@ -133,6 +140,16 @@ export function Settings({
         </ul>
       )}
       <div className="infoObjectControls">
+        <fieldset disabled={!selectedInfoObjectName}>
+          <legend>URL</legend>
+          <input
+            type="url"
+            value={infoObjects.find(object => object.name === selectedInfoObjectName)?.url ?? ''}
+            onChange={event => updateSelectedUrl(event.currentTarget.value)}
+            placeholder="https://example.com"
+            aria-label="オブジェクトのURL"
+          />
+        </fieldset>
         <fieldset disabled={!selectedInfoObjectName}>
           <legend>移動</legend>
           <div className="controlButtons moveButtons">

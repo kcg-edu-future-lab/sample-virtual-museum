@@ -1,0 +1,18 @@
+{
+  "infoObjects": [
+    {
+      "name": "obj1",
+      "url": "https://www.kcg.edu/",
+      "position": [
+        -2,
+        1,
+        2
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    }
+  ]
+}

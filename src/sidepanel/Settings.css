@@ -123,6 +123,11 @@
   border: 1px solid #e5e7eb;
 }
 
+.infoObjectControls input {
+  box-sizing: border-box;
+  width: 100%;
+}
+
 .infoObjectControls legend {
   padding: 0 4px;
   font-size: 13px;

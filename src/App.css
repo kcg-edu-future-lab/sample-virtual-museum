@@ -11,8 +11,41 @@
 }
 
 .canvasPane {
+  position: relative;
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.crosshair {
+  position: absolute;
+  top: 320px;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: "";
+  position: absolute;
+  background: #fff;
+  box-shadow: 0 0 2px #000;
+}
+
+.crosshair::before {
+  top: 9px;
+  left: 0;
+  width: 20px;
+  height: 2px;
+}
+
+.crosshair::after {
+  top: 0;
+  left: 9px;
+  width: 2px;
+  height: 20px;
 }
 
 .sidePanel {
