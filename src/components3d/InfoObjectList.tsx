@@ -13,7 +13,6 @@ export function InfoObjectList({infoObjects, selectedName}: InfoObjectListProps)
     new Vector3(0.25, 0.25, 0.25),
   ), []);
 
-  console.log("render InfoObjectList3d", infoObjects.getObjects())
   useEffect(() => {
     if (!selectedName) return;
 

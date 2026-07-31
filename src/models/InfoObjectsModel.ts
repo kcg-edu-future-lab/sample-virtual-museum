@@ -36,14 +36,11 @@ export class InfoObjectsModel{
   setObjectPosition(objectName: string, position: vec3){
     this.objs = this.objs.map(obj => {
       if(obj.name === objectName){
-        console.log(`${objectName} updated`, position);
         return ({...obj, position});
       } else{
         return obj;
       }
-//      obj.name === objectName ? {...obj, position} : obj);
     });
-    console.log(`${objectName} updated`, position, this.objs);
   }
 
   @Distributed()

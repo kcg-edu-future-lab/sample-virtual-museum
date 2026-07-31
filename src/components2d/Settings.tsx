@@ -80,7 +80,7 @@ export function Settings({
     if (!selectedInfoObjectName) return;
     const obj = infoObjects.findObject(selectedInfoObjectName);
     if(!obj) return;
-    const next = obj[property] as vec3;
+    const next = [...obj[property]] as vec3;
     next[axis] = Math.max(minimum ?? -Infinity, Number((next[axis] + amount).toFixed(1)));
     if(property === 'position'){
       infoObjects.setObjectPosition(selectedInfoObjectName, next);
