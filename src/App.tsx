@@ -1,21 +1,22 @@
-import { createContext, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { createContext, Suspense, useCallback, useContext, useState } from 'react'
+import { Canvas } from '@react-three/fiber'
 import { Gltf, KeyboardControls } from "@react-three/drei";
-import { Box3, Ray, Vector3 } from 'three';
 import { v4 as uuidv4 } from 'uuid';
 import { TypedStorageAdapter } from 'tlssa';
 import { Madoi, type Profile } from 'madoi-client';
-import { useOtherPeers } from 'madoi-client-react';
+import { useMadoiModel, useOtherPeers } from 'madoi-client-react';
 import { madoiKey, madoiUrl } from './keys';
-import { AvatarObject } from './Avatar';
+import { AvatarObject } from './components3d/Avatar';
 import './App.css'
-import { Player } from './Player';
-import { Chat } from './sidepanel/Chat';
-import { MouseAndKeyboardPropagationBlocker } from './common/MouseAndKeyboardPropagationBlocker';
-import { TabHeader } from './common/TabHeader';
-import { Settings } from './sidepanel/Settings';
-import type { vec3, vec4 } from './common/util';
-import type { InfoObject } from './common/InfoObject';
+import { Player } from './components3d/Player';
+import { Chat } from './components2d/Chat';
+import { MouseAndKeyboardPropagationBlocker } from './components2d/MouseAndKeyboardPropagationBlocker';
+import { TabHeader } from './components2d/TabHeader';
+import { Settings } from './components2d/Settings';
+import type { vec3, vec4 } from './util';
+import { InfoObjectsModel, type InfoObject } from './models/InfoObjectsModel';
+import { InfoObjectList } from './components3d/InfoObjectList';
+import { InfoObjectDetector } from './components3d/InfoObjectDetector';
 
 export interface PeerProfile extends Profile{
   name?: string;
@@ -37,132 +38,35 @@ export const MadoiContext = createContext({
   )
 });
 
-function InfoObjects({
-  infoObjects, selectedName, setInfoObjects
-}: {
-  infoObjects: InfoObject[];
-  selectedName?: string;
-  setInfoObjects: React.Dispatch<React.SetStateAction<InfoObject[]>>;
-}) {
-  const box = useMemo(() => new Box3(
-    new Vector3(-0.25, -0.25, -0.25),
-    new Vector3(0.25, 0.25, 0.25),
-  ), []);
-
-  useEffect(() => {
-    if (!selectedName) return;
-
-    const moveSelected = (event: KeyboardEvent) => {
-      const moves: Record<string, vec3> = {
-        ArrowLeft: [-0.1, 0, 0],
-        ArrowRight: [0.1, 0, 0],
-        ArrowUp: [0, 0, -0.1],
-        ArrowDown: [0, 0, 0.1],
-        PageUp: [0, 0.1, 0],
-        PageDown: [0, -0.1, 0],
-      };
-      const move = moves[event.key];
-      if (!move) return;
-      event.preventDefault();
-      event.stopPropagation();
-      setInfoObjects(current => current.map(object => object.name === selectedName ? {
-        ...object,
-        position: object.position.map((value, index) => value + move[index]) as vec3,
-      } : object));
-    };
-
-    window.addEventListener('keydown', moveSelected, true);
-    return () => window.removeEventListener('keydown', moveSelected, true);
-  }, [selectedName]);
-
-  return <>
-    {infoObjects.map(object =>
-      <group key={object.name} position={object.position} scale={object.scale}>
-        <box3Helper args={[box, selectedName === object.name ? 0xffff00 : 0xff0000]} />
-      </group>
-    )}
-  </>;
-}
-
 function Crosshair() {
   return <div className="crosshair" aria-hidden="true" />;
 }
 
-function InfoObjectDetector({ infoObjects, onUrlDetected }: {
+interface AppProps{
   infoObjects: InfoObject[];
-  onUrlDetected: (url: string | undefined) => void;
-}) {
-  const lastUrl = useRef<string | undefined>(undefined);
-  const direction = useMemo(() => new Vector3(), []);
-  const targetBox = useMemo(() => new Box3(), []);
-  const intersection = useMemo(() => new Vector3(), []);
-  const center = useMemo(() => new Vector3(), []);
-  const size = useMemo(() => new Vector3(), []);
-  const ray = useMemo(() => new Ray(), []);
-
-  useFrame(({ camera }) => {
-    camera.getWorldDirection(direction);
-    let url: string | undefined;
-    let nearestDistance = 1;
-
-    for (const object of infoObjects) {
-      targetBox.setFromCenterAndSize(
-        center.set(...object.position),
-        size.set(...object.scale).multiplyScalar(0.5),
-      );
-      if (targetBox.containsPoint(camera.position)) {
-        url = object.url;
-        nearestDistance = 0;
-      } else {
-        ray.set(camera.position, direction);
-        if (ray.intersectBox(targetBox, intersection)) {
-          const distance = camera.position.distanceTo(intersection);
-          if (distance < nearestDistance) {
-            nearestDistance = distance;
-            url = object.url;
-          }
-        }
-      }
-    }
-
-    if (url !== lastUrl.current) onUrlDetected(url);
-    lastUrl.current = url;
-  });
-
-  return null;
 }
 
-export default function App() {
+export default function App({infoObjects: objs}: AppProps) {
   const madoi = useContext(MadoiContext).madoi;
   const otherPeers = useOtherPeers(madoi);
+  const infoObjects = useMadoiModel(madoi, ()=>new InfoObjectsModel(objs));
   const [activeTab, setActiveTab] = useState<'chat' | 'info' | 'settings'>('chat');
   const [detectedInfoObjectUrl, setDetectedInfoObjectUrl] = useState<string>();
-  const [infoObjects, setInfoObjects] = useState<InfoObject[]>([]);
   const [selectedInfoObjectName, setSelectedInfoObjectName] = useState<string>();
 
-  const onInfoObjectUrlDetected = useCallback((url: string | undefined) => {
-    setDetectedInfoObjectUrl(url);
-    if (url) setActiveTab('info');
+  const onInfoObjectDetected = useCallback((object: InfoObject | undefined) => {
+    setDetectedInfoObjectUrl(object?.url);
+    if (object?.url) setActiveTab('info');
   }, []);
 
-  useEffect(() => {
-    fetch('./infoobjects.json')
-      .then(response => {
-        if (!response.ok) throw new Error(`Failed to load infoobjects.json: ${response.status}`);
-        return response.json() as Promise<{ infoObjects: InfoObject[] }>;
-      })
-      .then(data => setInfoObjects(data.infoObjects))
-      .catch(error => console.error(error));
-  }, []);
-
-  const changeInfoObjects: React.Dispatch<React.SetStateAction<InfoObject[]>> = update => {
-    setInfoObjects(current => {
-      const objects = typeof update === 'function' ? update(current) : update;
-      if (selectedInfoObjectName && !objects.some(object => object.name === selectedInfoObjectName)) {
-      setSelectedInfoObjectName(undefined);
-      }
-      return objects;
-    });
+  const onUserSelectInfoObject = (name?: string) => {
+    if(selectedInfoObjectName){
+      infoObjects.setObjectSelected(selectedInfoObjectName, false);
+    }
+    setSelectedInfoObjectName(name);
+    if(name){
+      infoObjects.setObjectSelected(name, true);
+    }
   };
 
   const onSelfPositionChanged = (position: vec3)=>{
@@ -198,12 +102,13 @@ export default function App() {
           <Suspense fallback={null}>
             <Gltf src='./Scaniverse 2026-05-11 131013.glb' />
           </Suspense>
-          <InfoObjects
+          <InfoObjectList
             infoObjects={infoObjects}
             selectedName={selectedInfoObjectName}
-            setInfoObjects={setInfoObjects}
           />
-          <InfoObjectDetector infoObjects={infoObjects} onUrlDetected={onInfoObjectUrlDetected} />
+          <InfoObjectDetector
+            infoObjects={infoObjects} onObjectDetected={onInfoObjectDetected}
+          />
           <ambientLight intensity={1} />
         </Canvas>
       </KeyboardControls>
@@ -243,9 +148,8 @@ export default function App() {
         {activeTab === 'settings' && <Settings
           madoi={madoi}
           infoObjects={infoObjects}
-          onInfoObjectsChange={changeInfoObjects}
           selectedInfoObjectName={selectedInfoObjectName}
-          onInfoObjectSelect={setSelectedInfoObjectName}
+          onInfoObjectSelected={onUserSelectInfoObject}
         />}
       </aside>
     </MouseAndKeyboardPropagationBlocker>

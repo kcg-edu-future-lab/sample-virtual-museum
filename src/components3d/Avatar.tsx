@@ -2,7 +2,7 @@ import { useRef } from "react";
 import type { Group } from "three";
 import { useFrame } from "@react-three/fiber";
 import type { PeerInfo } from "madoi-client";
-import type { PeerProfile } from "./App";
+import type { PeerProfile } from "../App";
 
 interface AvatarObjectProps{
   peer: PeerInfo<PeerProfile>;

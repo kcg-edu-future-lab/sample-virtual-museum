@@ -1,24 +1,23 @@
 import { useRef, type ChangeEvent, type SubmitEvent } from "react";
-import type { Madoi } from "madoi-client";
+import { type Madoi } from "madoi-client";
 import type { PeerProfile } from "../App";
 import './Settings.css';
-import type { vec3 } from "../common/util";
-import type { InfoObject } from "../common/InfoObject";
+import type { vec3 } from "../util";
+import type { InfoObject, InfoObjectsModel } from "../models/InfoObjectsModel";
 
 const isVec3 = (value: unknown): value is vec3 =>
   Array.isArray(value) && value.length === 3 && value.every(item => typeof item === 'number');
 
 interface SettingsProps {
   madoi: Madoi<PeerProfile>;
-  infoObjects: InfoObject[];
-  onInfoObjectsChange: React.Dispatch<React.SetStateAction<InfoObject[]>>;
+  infoObjects: InfoObjectsModel;
   selectedInfoObjectName?: string;
-  onInfoObjectSelect: (name: string | undefined) => void;
+  onInfoObjectSelected: (name: string | undefined) => void;
 }
 
 export function Settings({
-  infoObjects, onInfoObjectsChange,
-  selectedInfoObjectName, onInfoObjectSelect
+  infoObjects,
+  selectedInfoObjectName, onInfoObjectSelected
 }: SettingsProps) {
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,7 +37,7 @@ export function Settings({
     if (!file) return;
 
     try {
-      const settings = JSON.parse(await file.text()) as {infoObjects?: unknown};
+      const settings = JSON.parse(await file.text()) as {infoObjects?: InfoObject[]};
       if (!Array.isArray(settings.infoObjects)
         || !settings.infoObjects.every(object => object && typeof object === 'object'
           && typeof (object as InfoObject).name === 'string'
@@ -47,8 +46,8 @@ export function Settings({
           && isVec3((object as InfoObject).scale))) {
         throw new Error('Invalid settings file');
       }
-      onInfoObjectsChange(settings.infoObjects as InfoObject[]);
-      onInfoObjectSelect(undefined);
+      infoObjects.setObjects(settings.infoObjects);
+      onInfoObjectSelected(undefined);
     } catch {
       window.alert('設定ファイルを読み込めませんでした。');
     }
@@ -58,20 +57,18 @@ export function Settings({
     event.preventDefault();
     const form = event.currentTarget;
     const name = String(new FormData(form).get('objectName') ?? '').trim();
-    if (!name || infoObjects.some(object => object.name === name)) return;
-    onInfoObjectsChange([...infoObjects, {name, url: '', position: [-2, 1, 2], scale: [1, 1, 1]}]);
+    infoObjects.addObject(name);
     form.reset();
   };
 
   const removeInfoObject = (name: string) => {
-    onInfoObjectsChange(infoObjects.filter(object => object.name !== name));
+    infoObjects.removeObject(name);
+    if(name === selectedInfoObjectName) onInfoObjectSelected(undefined);
   };
 
   const updateSelectedUrl = (url: string) => {
     if (!selectedInfoObjectName) return;
-    onInfoObjectsChange(current => current.map(object =>
-      object.name === selectedInfoObjectName ? {...object, url} : object
-    ));
+    infoObjects.setObjectUrl(selectedInfoObjectName, url);
   };
 
   const updateSelectedVector = (
@@ -81,12 +78,15 @@ export function Settings({
     minimum?: number,
   ) => {
     if (!selectedInfoObjectName) return;
-    onInfoObjectsChange(current => current.map(object => {
-      if (object.name !== selectedInfoObjectName) return object;
-      const next = [...object[property]] as vec3;
-      next[axis] = Math.max(minimum ?? -Infinity, Number((next[axis] + amount).toFixed(1)));
-      return {...object, [property]: next};
-    }));
+    const obj = infoObjects.findObject(selectedInfoObjectName);
+    if(!obj) return;
+    const next = obj[property] as vec3;
+    next[axis] = Math.max(minimum ?? -Infinity, Number((next[axis] + amount).toFixed(1)));
+    if(property === 'position'){
+      infoObjects.setObjectPosition(selectedInfoObjectName, next);
+    } else{
+      infoObjects.setObjectScale(selectedInfoObjectName, next);
+    }
   };
 
   return <div className="settingsPanel" role="tabpanel" id="settings-panel" aria-labelledby="settings-tab">
@@ -119,16 +119,16 @@ export function Settings({
           <button type="submit">追加</button>
         </div>
       </form>
-      {infoObjects.length === 0 ? (
+      {infoObjects.size() === 0 ? (
         <p className="emptyInfoObjects">登録されていません</p>
       ) : (
         <ul className="infoObjectList">
-          {infoObjects.map(({name}) => <li key={name}>
+          {infoObjects.getObjects().map(({name}) => <li key={name}>
             <button
               type="button"
               className="infoObjectSelect"
               aria-pressed={selectedInfoObjectName === name}
-              onClick={() => onInfoObjectSelect(
+              onClick={() => onInfoObjectSelected(
                 selectedInfoObjectName === name ? undefined : name
               )}
             >{name}</button>
@@ -143,7 +143,7 @@ export function Settings({
           <legend>URL</legend>
           <input
             type="url"
-            value={infoObjects.find(object => object.name === selectedInfoObjectName)?.url ?? ''}
+            value={infoObjects.findObject(selectedInfoObjectName || '')?.url ?? ''}
             onChange={event => updateSelectedUrl(event.currentTarget.value)}
             placeholder="https://example.com"
             aria-label="オブジェクトのURL"
@@ -170,13 +170,13 @@ export function Settings({
           </div>
         </fieldset>
         {selectedInfoObjectName && <p className="scaleValue">
-          倍率: {infoObjects.find(object => object.name === selectedInfoObjectName)?.scale.map(value => value.toFixed(1)).join(' × ')}
+          倍率: {infoObjects.findObject(selectedInfoObjectName)?.scale.map(value => value.toFixed(1)).join(' × ')}
         </p>}
       </div>
       <div className="infoObjectInfo" aria-live="polite">
         <h4>座標</h4>
         {selectedInfoObjectName ? (() => {
-          const [x, y, z] = infoObjects.find(object => object.name === selectedInfoObjectName)?.position ?? [-2, 1, 2];
+          const [x, y, z] = infoObjects.findObject(selectedInfoObjectName)?.position ?? [-2, 1, 2];
           return <dl>
             <div><dt>X</dt><dd>{x.toFixed(1)}</dd></div>
             <div><dt>Y</dt><dd>{y.toFixed(1)}</dd></div>
