@@ -20,15 +20,13 @@ export class InfoObjectsModel{
   @ChangeState()
   addObject(name: string){
     if (!name || this.objs.some(object => object.name === name)) return;
-    this.objs.push({name, selected: false, url: '', position: [-2, 1, 2], scale: [1, 1, 1]});
-    this.objs = [...this.objs];
+    this.objs = [...this.objs, {name, selected: false, url: '', position: [-2, 1, 2], scale: [1, 1, 1]}];
   }
 
   @Distributed()
   @ChangeState()
   removeObject(name: string){
-    this.objs.filter(object => object.name !== name)
-    this.objs = [...this.objs];
+    this.objs = this.objs.filter(object => object.name !== name);
   }
 
   @Distributed()
