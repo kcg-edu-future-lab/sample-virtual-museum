@@ -4,10 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import type { PeerInfo } from "madoi-client";
 import type { PeerProfile } from "../App";
 
-interface AvatarObjectProps{
+interface OtherPlayerProps{
   peer: PeerInfo<PeerProfile>;
 }
-export function AvatarObject({peer}: AvatarObjectProps) {
+export function OtherPlayer({peer}: OtherPlayerProps) {
   const avatarRef = useRef<Group>(null);
   const headRef = useRef<Group>(null);
   const bodyRef = useRef<Group>(null);

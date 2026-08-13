@@ -6,7 +6,7 @@ import { TypedStorageAdapter } from 'tlssa';
 import { Madoi, type Profile } from 'madoi-client';
 import { useMadoiModel, useOtherPeers } from 'madoi-client-react';
 import { madoiKey, madoiUrl } from './keys';
-import { AvatarObject } from './components3d/Avatar';
+import { OtherPlayer } from './components3d/Avatar';
 import './App.css'
 import { Player } from './components3d/Player';
 import { Chat } from './components2d/Chat';
@@ -97,7 +97,7 @@ export default function App({infoObjects: objs}: AppProps) {
             onOrientationChanged={onSelfOrientationChanged}
           />
           {otherPeers.map(p =>
-             <AvatarObject key={p.id} peer={p}/>
+             <OtherPlayer key={p.id} peer={p}/>
           )}
           <Suspense fallback={null}>
             <Gltf src='./Scaniverse 2026-05-11 131013.glb' />
@@ -139,11 +139,13 @@ export default function App({infoObjects: objs}: AppProps) {
           <Chat madoi={madoi} />
         </div>
         <div id="info-panel" role="tabpanel" aria-labelledby="info-tab" hidden={activeTab !== 'info'}>
-          {detectedInfoObjectUrl ? <iframe
-            className="infoObjectFrame"
-            src={detectedInfoObjectUrl}
-            title="Info object"
-          /> : "計算機の説明がここに表示されます。"}
+          {detectedInfoObjectUrl ?
+            <div style={{overflow: "scroll"}}>
+              <div style={{width: "100%"}}>
+                <iframe className="infoObjectFrame" src={detectedInfoObjectUrl} title="Info object"
+                  style={{transform: "scale(0.55)", transformOrigin: "0 0"}} />
+              </div>
+            </div> : "計算機の説明がここに表示されます。"}
         </div>
         {activeTab === 'settings' && <Settings
           madoi={madoi}
