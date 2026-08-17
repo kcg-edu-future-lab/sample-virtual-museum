@@ -1,7 +1,7 @@
 import { ChangeState, ClassName, Distributed, EnterRoomAllowed, GetState, Madoi, SetState } from "madoi-client";
 import type { PeerProfile } from "../App";
 
-export type ChatMessage = {
+export interface ChatMessage {
   peerId: string;
   senderName?: string;
   text: string;
