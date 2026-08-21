@@ -1,6 +1,7 @@
 # sample-virtual-museum
 
-![screenshot](./images/vm.gif)
+
+https://github.com/user-attachments/assets/1bf4b663-5af4-4b1c-9ab2-ebd330a65ce0
 
 バーチャルミュージアムのサンプルプログラムです。
 起動して複数のブラウザで開くと、ワールド内のお互いのアバターの位置や向きが共有され表示されます。
