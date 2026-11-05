@@ -17,6 +17,7 @@ import type { vec3, vec4 } from './util';
 import { InfoObjectsModel, type InfoObject } from './models/InfoObjectsModel';
 import { InfoObjectList } from './components3d/InfoObjectList';
 import { InfoObjectDetector } from './components3d/InfoObjectDetector';
+import { Kyokotan, Kyokotan2 } from './components3d/Kyokotan';
 
 export interface PeerProfile extends Profile{
   name?: string;
@@ -101,6 +102,8 @@ export default function App({infoObjects: objs}: AppProps) {
           )}
           <Suspense fallback={null}>
             <Gltf src='./Scaniverse 2026-05-11 131013.glb' />
+            {/*<Kyokotan position={[-4.5, 0.1, 1.5]} scale={1.2} />
+            <Kyokotan2 position={[-2.5, 1, 1.5]} scale={0.2} />*/}
           </Suspense>
           <InfoObjectList
             infoObjects={infoObjects}
